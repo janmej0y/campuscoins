@@ -1,197 +1,136 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Student Expense Tracker — v2</title>
-
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Expense Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <div class="app">
-    <header class="topbar">
-      <div class="brand">
-        <div class="logo">💸</div>
-        <div>
-          <h1>Student Expense Tracker</h1>
-          <div class="subtitle">Track expenses, income & budgets — offline</div>
-        </div>
-      </div>
+<body class="bg-gray-900 text-gray-200">
 
-      <div class="top-controls">
-        <div class="control-group">
-          <select id="filterMonth"></select>
-          <select id="filterCategory"><option value="all">All categories</option></select>
-          <input id="search" placeholder="Search title or notes..." />
-        </div>
+    <div id="app" class="container mx-auto p-4 md:p-6 lg:p-8 max-w-7xl">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-white tracking-tight">
+                🧾 Campus Coins(Expense Tracker)
+            </h1>
+            <p class="text-blue-300 mt-2">Track your spending, master your budget.</p>
+        </header>
 
-        <div class="control-actions">
-          <button id="btnExport" title="Export CSV">Export CSV</button>
-          <button id="btnExportJSON" title="Export JSON">Export JSON</button>
-          <input id="importJson" type="file" accept="application/json" style="display:none" />
-          <button id="btnImport">Import JSON</button>
-
-          <div class="theme-toggle">
-            <input type="checkbox" id="themeSwitch" />
-            <label for="themeSwitch" title="Toggle theme">🌓</label>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <main>
-      <section class="left">
-        <div class="card summary-card">
-          <div class="summary-top">
-            <div>
-              <div class="small">Net balance (selected month)</div>
-              <div id="netBalance" class="big">₹0</div>
-            </div>
-            <div>
-              <div class="small">Budget</div>
-              <div class="budget-display">
-                <input id="budgetInput" type="number" min="0" placeholder="Set monthly budget" />
-                <button id="saveBudget" class="small-btn">Save</button>
-              </div>
-              <div class="progress-wrap">
-                <div id="budgetProgress" class="progress-bar">
-                  <div id="budgetFill" class="progress-fill" style="width:0%"></div>
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column: Add Expense & Actions -->
+            <div class="lg:col-span-1 space-y-8">
+                <!-- Add Expense Form -->
+                <div class="glass-card p-6 rounded-2xl shadow-lg">
+                    <h2 class="text-2xl font-semibold mb-4 text-white">Add New Expense</h2>
+                    <form id="expense-form" class="space-y-4">
+                        <div>
+                            <label for="description" class="block text-sm font-medium text-gray-300">Description</label>
+                            <input type="text" id="description" placeholder="e.g., Coffee" required class="mt-1 w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="amount" class="block text-sm font-medium text-gray-300">Amount ($)</label>
+                            <input type="number" id="amount" placeholder="10.50" min="0.01" step="0.01" required class="mt-1 w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="category" class="block text-sm font-medium text-gray-300">Category</label>
+                            <select id="category" required class="mt-1 w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white focus:ring-blue-500 focus:border-blue-500">
+                                <option value="Food">🍔 Food</option>
+                                <option value="Transport">🚌 Transport</option>
+                                <option value="Study">📚 Study</option>
+                                <option value="Entertainment">🎬 Entertainment</option>
+                                <option value="Health">💊 Health</option>
+                                <option value="Other">🛒 Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="date" class="block text-sm font-medium text-gray-300">Date</label>
+                            <input type="date" id="date" required class="mt-1 w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <button type="submit" class="w-full gradient-bg text-white font-bold py-3 px-4 rounded-lg shadow-md hover:opacity-90 transition-opacity duration-300">
+                            Add Expense
+                        </button>
+                    </form>
                 </div>
-                <div id="budgetLabel" class="small muted">₹0 / ₹0</div>
-              </div>
-            </div>
-          </div>
 
-          <div class="charts">
-            <canvas id="pieChart" height="180"></canvas>
-            <canvas id="barChart" height="160"></canvas>
-          </div>
-        </div>
-
-        <div class="card list-card">
-          <div class="list-controls">
-            <select id="typeFilter">
-              <option value="all">All</option>
-              <option value="expense">Expense</option>
-              <option value="income">Income</option>
-            </select>
-            <select id="sort">
-              <option value="new">Newest</option>
-              <option value="old">Oldest</option>
-              <option value="high">Amount: High</option>
-              <option value="low">Amount: Low</option>
-            </select>
-            <div class="spacer"></div>
-            <button id="btnSeed" class="ghost">Seed Example</button>
-            <button id="btnClear" class="ghost danger">Clear All</button>
-          </div>
-          <div id="pagination" class="pagination"></div>
-
-          <div id="list" class="list"></div>
-          <div id="empty" class="empty">No records yet — click the <strong>+</strong> button to add.</div>
-        </div>
-      </section>
-
-      <aside class="right">
-        <div class="card categories-card">
-          <div class="small muted">Categories</div>
-          <div id="categories" class="categories"></div>
-        </div>
-
-        <div class="card quick-card">
-          <div class="small muted">Quick Add</div>
-          <form id="quickForm" class="quick-form">
-            <div class="field">
-              <div class="icon">✏️</div>
-              <input id="qTitle" placeholder="Title (e.g., Snack)" />
-            </div>
-            <div class="field">
-              <div class="icon">💸</div>
-              <input id="qAmount" type="number" step="0.01" placeholder="Amount" />
-            </div>
-            <div class="field small">
-              <select id="qCategory"></select>
-              <select id="qType">
-                <option value="expense">Expense</option>
-                <option value="income">Income</option>
-              </select>
-            </div>
-            <div class="row">
-              <button id="qAdd" class="primary">Add</button>
-              <button id="openModalBtn" class="ghost">More</button>
-            </div>
-          </form>
-        </div>
-      </aside>
-    </main>
-
-    <button id="fab" title="Add expense" class="fab">+</button>
-
-    <div id="modal" class="modal" aria-hidden="true">
-      <div class="modal-content">
-        <div class="modal-header">
-          <strong id="modalTitle">Add record</strong>
-          <button id="modalClose" class="ghost">Close</button>
-        </div>
-
-        <form id="form" class="form">
-          <div class="grid">
-            <div class="field">
-              <div class="icon">✏️</div>
-              <input id="title" placeholder="Title" required />
-            </div>
-            <div class="field">
-              <div class="icon">💸</div>
-              <input id="amount" type="number" step="0.01" placeholder="Amount" required />
-            </div>
-          </div>
-
-          <div class="grid">
-            <div class="field">
-              <div class="icon">🏷️</div>
-              <select id="category"></select>
+                <!-- Data Actions -->
+                <div class="glass-card p-6 rounded-2xl shadow-lg">
+                     <h2 class="text-2xl font-semibold mb-4 text-white">Data Management</h2>
+                     <div class="flex flex-col space-y-3">
+                        <button id="export-csv" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Export to CSV</button>
+                        <label for="import-json" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg text-center cursor-pointer transition-colors">
+                            Import from JSON
+                            <input type="file" id="import-json" class="hidden" accept=".json">
+                        </label>
+                     </div>
+                </div>
             </div>
 
-            <div class="field">
-              <div class="icon">📅</div>
-              <input id="date" type="date" required />
+            <!-- Right Column: Expense List -->
+            <div class="lg:col-span-2 glass-card p-6 rounded-2xl shadow-lg">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+                    <div>
+                        <h2 class="text-2xl font-semibold text-white">Your Expenses</h2>
+                        <p id="monthly-total" class="text-blue-300 font-bold text-lg"></p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label for="month-filter" class="text-sm">Month:</label>
+                        <select id="month-filter" class="bg-gray-700 border-gray-600 rounded-md shadow-sm text-white focus:ring-blue-500 focus:border-blue-500 text-sm py-1">
+                        </select>
+                    </div>
+                </div>
+                <div id="expense-list" class="space-y-3 h-[60vh] overflow-y-auto pr-2">
+                    <!-- Expenses will be dynamically inserted here -->
+                </div>
             </div>
-          </div>
-
-          <div class="field">
-            <div class="icon">📝</div>
-            <textarea id="notes" placeholder="Notes (optional)"></textarea>
-          </div>
-
-          <div class="grid">
-            <div class="field">
-              <label><input type="checkbox" id="recurring" /> Recurring monthly</label>
-            </div>
-            <div class="field">
-              <label>Type:
-                <select id="type">
-                  <option value="expense">Expense</option>
-                  <option value="income">Income</option>
-                </select>
-              </label>
-            </div>
-          </div>
-
-          <div class="form-actions">
-            <button type="button" id="deleteBtn" class="ghost danger" style="display:none">Delete</button>
-            <div class="spacer"></div>
-            <button type="submit" class="primary">Save</button>
-          </div>
-        </form>
-      </div>
+        </main>
     </div>
 
-    <footer class="foot">Works offline — data is stored in your browser (localStorage). Export to backup.</footer>
-  </div>
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="fixed inset-0 z-50 items-center justify-center hidden">
+       <div class="modal-backdrop fixed inset-0"></div>
+        <div class="relative glass-card p-6 rounded-2xl shadow-lg w-11/12 max-w-md mx-auto">
+             <h2 class="text-2xl font-semibold mb-4 text-white">Edit Expense</h2>
+            <form id="edit-form" class="space-y-4">
+                <input type="hidden" id="edit-id">
+                <div>
+                    <label for="edit-description" class="block text-sm font-medium text-gray-300">Description</label>
+                    <input type="text" id="edit-description" required class="mt-1 w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="edit-amount" class="block text-sm font-medium text-gray-300">Amount ($)</label>
+                    <input type="number" id="edit-amount" min="0.01" step="0.01" required class="mt-1 w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="edit-category" class="block text-sm font-medium text-gray-300">Category</label>
+                    <select id="edit-category" required class="mt-1 w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white focus:ring-blue-500 focus:border-blue-500">
+                         <option value="Food">🍔 Food</option>
+                         <option value="Transport">🚌 Transport</option>
+                         <option value="Study">📚 Study</option>
+                         <option value="Entertainment">🎬 Entertainment</option>
+                         <option value="Health">💊 Health</option>
+                         <option value="Other">🛒 Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="edit-date" class="block text-sm font-medium text-gray-300">Date</label>
+                    <input type="date" id="edit-date" required class="mt-1 w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="flex justify-end gap-3 mt-4">
+                    <button type="button" id="cancel-edit" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg transition-colors">Cancel</button>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Custom Alert/Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 translate-y-10 transition-all duration-300">
+        <p id="toast-message"></p>
+    </div>
 
-  <script src="script.js"></script>
+    <script src="script.js" defer></script>
 </body>
 </html>

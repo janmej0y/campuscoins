@@ -233,3 +233,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     renderExpenses(monthFilter.value);
 });
+// Register the service worker for offline support
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(() => console.log('Service Worker registered'))
+      .catch(console.error);
+  }
+  

@@ -1,6 +1,6 @@
 {
     "name": "Student Expense Tracker",
-    "short_name": "Expenses",
+    "short_name": "Budgeto",
     "start_url": "./index.html",
     "display": "standalone",
     "background_color": "#0f172a",

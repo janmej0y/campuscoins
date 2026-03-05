@@ -1,139 +1,238 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Expense Tracker</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#7c3aed">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campus Coins</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0f172a">
 </head>
-<body class="bg-gray-900 text-gray-200">
+<body>
+  <div class="bg-shape bg-shape-a" aria-hidden="true"></div>
+  <div class="bg-shape bg-shape-b" aria-hidden="true"></div>
 
-    <div id="app" class="container mx-auto p-4 md:p-6 lg:p-8 max-w-7xl">
-        <!-- Header -->
-        <header class="text-center mb-8">
-            <h1 class="text-4xl md:text-5xl font-bold text-white tracking-tight">
-                🧾 Campus Coins(Expense Tracker)
-            </h1>
-            <p class="text-blue-300 mt-2">Track your spending, master your budget.</p>
-        </header>
+  <div id="app" class="container mx-auto p-4 md:p-6 lg:p-8 max-w-7xl">
+    <header class="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div>
+        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-100">Campus Coins</h1>
+        <p class="text-slate-300">Track spending, income, budgets, and trends.</p>
+      </div>
+      <div class="flex flex-wrap gap-2 items-center">
+        <select id="theme-select" class="ctrl" aria-label="Theme">
+          <option value="system">Theme: System</option>
+          <option value="light">Theme: Light</option>
+          <option value="dark">Theme: Dark</option>
+        </select>
+        <select id="currency-select" class="ctrl" aria-label="Currency">
+          <option value="INR">INR</option>
+          <option value="USD">USD</option>
+          <option value="EUR">EUR</option>
+          <option value="GBP">GBP</option>
+          <option value="JPY">JPY</option>
+        </select>
+        <button id="enable-reminders" class="btn">Enable reminders</button>
+        <button id="run-tests" class="btn">Run tests</button>
+      </div>
+    </header>
 
-        <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Left Column: Add Expense & Actions -->
-            <div class="lg:col-span-1 space-y-8">
-                <!-- Add Expense Form -->
-                <div class="glass-card p-6 rounded-2xl shadow-lg">
-                    <h2 class="text-2xl font-semibold mb-4 text-white">Add New Expense</h2>
-                    <form id="expense-form" class="space-y-4">
-                        <div>
-                            <label for="description" class="block text-sm font-medium text-gray-300">Description</label>
-                            <input type="text" id="description" placeholder="e.g., Coffee" required class="mt-1 w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        <div>
-                            <label for="amount" class="block text-sm font-medium text-gray-300">Amount ($)</label>
-                            <input type="number" id="amount" placeholder="10.50" min="0.01" step="0.01" required class="mt-1 w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        <div>
-                            <label for="category" class="block text-sm font-medium text-gray-300">Category</label>
-                            <select id="category" required class="mt-1 w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white focus:ring-blue-500 focus:border-blue-500">
-                                <option value="Food">🍔 Food</option>
-                                <option value="Transport">🚌 Transport</option>
-                                <option value="Study">📚 Study</option>
-                                <option value="Entertainment">🎬 Entertainment</option>
-                                <option value="Health">💊 Health</option>
-                                <option value="Other">🛒 Other</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="date" class="block text-sm font-medium text-gray-300">Date</label>
-                            <input type="date" id="date" required class="mt-1 w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        <button type="submit" class="w-full gradient-bg text-white font-bold py-3 px-4 rounded-lg shadow-md hover:opacity-90 transition-opacity duration-300">
-                            Add Expense
-                        </button>
-                    </form>
-                </div>
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6" aria-label="Summary cards">
+      <div class="card p-4">
+        <p class="label">Income</p>
+        <p id="summary-income" class="value">₹0.00</p>
+      </div>
+      <div class="card p-4">
+        <p class="label">Expense</p>
+        <p id="summary-expense" class="value text-rose-300">₹0.00</p>
+      </div>
+      <div class="card p-4">
+        <p class="label">Net Savings</p>
+        <p id="summary-net" class="value">₹0.00</p>
+      </div>
+      <div class="card p-4">
+        <p class="label">Budget Used</p>
+        <p id="summary-budget" class="value">0%</p>
+      </div>
+      <div class="card p-4 sm:col-span-2 lg:col-span-4">
+        <p class="label">Period Snapshot</p>
+        <p id="summary-period" class="value text-base">Week: ₹0.00 | Month: ₹0.00 | Year: ₹0.00</p>
+      </div>
+    </section>
 
-                <!-- Data Actions -->
-                <div class="glass-card p-6 rounded-2xl shadow-lg">
-                     <h2 class="text-2xl font-semibold mb-4 text-white">Data Management</h2>
-                     <div class="flex flex-col space-y-3">
-                        <button id="export-csv" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Export to CSV</button>
-                        <label for="import-json" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg text-center cursor-pointer transition-colors">
-                            Import from JSON
-                            <input type="file" id="import-json" class="hidden" accept=".json">
-                        </label>
-                     </div>
-                </div>
+    <main class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <section class="space-y-4 xl:col-span-1">
+        <div class="card p-4">
+          <h2 class="title">Add Transaction</h2>
+          <form id="entry-form" class="space-y-3" novalidate>
+            <div class="grid grid-cols-2 gap-2">
+              <select id="type" class="ctrl" required>
+                <option value="expense">Expense</option>
+                <option value="income">Income</option>
+              </select>
+              <input id="date" type="date" class="ctrl" required>
             </div>
-
-            <!-- Right Column: Expense List -->
-            <div class="lg:col-span-2 glass-card p-6 rounded-2xl shadow-lg">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-                    <div>
-                        <h2 class="text-2xl font-semibold text-white">Your Expenses</h2>
-                        <p id="monthly-total" class="text-blue-300 font-bold text-lg"></p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <label for="month-filter" class="text-sm">Month:</label>
-                        <select id="month-filter" class="bg-gray-700 border-gray-600 rounded-md shadow-sm text-white focus:ring-blue-500 focus:border-blue-500 text-sm py-1">
-                        </select>
-                    </div>
-                </div>
-                <div id="expense-list" class="space-y-3 h-[60vh] overflow-y-auto pr-2">
-                    <!-- Expenses will be dynamically inserted here -->
-                </div>
+            <input id="description" type="text" class="ctrl" placeholder="Description" required maxlength="120">
+            <div class="grid grid-cols-2 gap-2">
+              <input id="amount" type="number" min="0.01" step="0.01" class="ctrl" placeholder="Amount" required>
+              <select id="category" class="ctrl" required>
+                <option>Food</option><option>Transport</option><option>Study</option><option>Entertainment</option>
+                <option>Health</option><option>Rent</option><option>Utilities</option><option>Shopping</option>
+                <option>Salary</option><option>Scholarship</option><option>Freelance</option><option>Other</option>
+              </select>
             </div>
-        </main>
-    </div>
-
-    <!-- Edit Modal -->
-    <div id="edit-modal" class="fixed inset-0 z-50 items-center justify-center hidden">
-       <div class="modal-backdrop fixed inset-0"></div>
-        <div class="relative glass-card p-6 rounded-2xl shadow-lg w-11/12 max-w-md mx-auto">
-             <h2 class="text-2xl font-semibold mb-4 text-white">Edit Expense</h2>
-            <form id="edit-form" class="space-y-4">
-                <input type="hidden" id="edit-id">
-                <div>
-                    <label for="edit-description" class="block text-sm font-medium text-gray-300">Description</label>
-                    <input type="text" id="edit-description" required class="mt-1 w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div>
-                    <label for="edit-amount" class="block text-sm font-medium text-gray-300">Amount ($)</label>
-                    <input type="number" id="edit-amount" min="0.01" step="0.01" required class="mt-1 w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div>
-                    <label for="edit-category" class="block text-sm font-medium text-gray-300">Category</label>
-                    <select id="edit-category" required class="mt-1 w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white focus:ring-blue-500 focus:border-blue-500">
-                         <option value="Food">🍔 Food</option>
-                         <option value="Transport">🚌 Transport</option>
-                         <option value="Study">📚 Study</option>
-                         <option value="Entertainment">🎬 Entertainment</option>
-                         <option value="Health">💊 Health</option>
-                         <option value="Other">🛒 Other</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="edit-date" class="block text-sm font-medium text-gray-300">Date</label>
-                    <input type="date" id="edit-date" required class="mt-1 w-full bg-gray-700 border-gray-600 rounded-md shadow-sm text-white focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div class="flex justify-end gap-3 mt-4">
-                    <button type="button" id="cancel-edit" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg transition-colors">Cancel</button>
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">Save Changes</button>
-                </div>
-            </form>
+            <input id="tags" type="text" class="ctrl" placeholder="Tags (comma separated)">
+            <textarea id="notes" rows="2" class="ctrl" placeholder="Notes"></textarea>
+            <label class="ctrl file-label" for="receipt">Attach receipt image
+              <input id="receipt" type="file" accept="image/*" class="hidden">
+            </label>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="inline-flex items-center gap-2 text-sm">
+                <input id="is-recurring" type="checkbox"> Recurring
+              </label>
+              <select id="recurring-frequency" class="ctrl" disabled>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
+              </select>
+            </div>
+            <button class="btn-primary w-full" type="submit">Save Transaction</button>
+          </form>
         </div>
-    </div>
-    
-    <!-- Custom Alert/Toast -->
-    <div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 translate-y-10 transition-all duration-300">
-        <p id="toast-message"></p>
-    </div>
 
-    <script src="script.js" defer></script>
+        <div class="card p-4">
+          <h2 class="title">Budget Manager</h2>
+          <form id="budget-form" class="grid grid-cols-2 gap-2 mb-2">
+            <select id="budget-category" class="ctrl">
+              <option>Food</option><option>Transport</option><option>Study</option><option>Entertainment</option>
+              <option>Health</option><option>Rent</option><option>Utilities</option><option>Shopping</option><option>Other</option>
+            </select>
+            <input id="budget-amount" type="number" min="0" step="0.01" class="ctrl" placeholder="Monthly limit">
+            <button class="btn-primary col-span-2" type="submit">Set Budget</button>
+          </form>
+          <div id="budget-list" class="space-y-2" aria-live="polite"></div>
+        </div>
+
+        <div class="card p-4">
+          <h2 class="title">Data + Sync</h2>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="export-csv" class="btn">Export CSV</button>
+            <button id="export-json" class="btn">Export JSON</button>
+            <button id="create-backup" class="btn">Create Backup</button>
+            <button id="download-backup" class="btn">Download Backup</button>
+            <button id="restore-backup" class="btn col-span-2">Restore Latest Backup</button>
+          </div>
+          <div class="mt-2 flex gap-2">
+            <select id="import-mode" class="ctrl">
+              <option value="merge">Import: Merge</option>
+              <option value="replace">Import: Replace</option>
+            </select>
+            <label for="import-json" class="btn flex-1 text-center cursor-pointer">Import JSON<input id="import-json" type="file" accept=".json" class="hidden"></label>
+          </div>
+          <div class="mt-3 space-y-2">
+            <input id="cloud-endpoint" type="url" class="ctrl" placeholder="Cloud endpoint (optional)">
+            <input id="cloud-token" type="password" class="ctrl" placeholder="Bearer token (optional)">
+            <div class="grid grid-cols-2 gap-2">
+              <button id="cloud-push" class="btn" type="button">Push Cloud</button>
+              <button id="cloud-pull" class="btn" type="button">Pull Cloud</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="space-y-4 xl:col-span-2">
+        <div class="card p-4">
+          <h2 class="title">Filters + Controls</h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+            <input id="search" class="ctrl" placeholder="Search description/tags">
+            <select id="filter-type" class="ctrl">
+              <option value="all">All Types</option><option value="expense">Expense</option><option value="income">Income</option>
+            </select>
+            <select id="filter-category" class="ctrl">
+              <option value="all">All Categories</option>
+            </select>
+            <input id="from-date" type="date" class="ctrl">
+            <input id="to-date" type="date" class="ctrl">
+            <select id="month-filter" class="ctrl"><option value="all">All Months</option></select>
+            <input id="min-amount" type="number" step="0.01" min="0" class="ctrl" placeholder="Min amount">
+            <input id="max-amount" type="number" step="0.01" min="0" class="ctrl" placeholder="Max amount">
+            <select id="sort-by" class="ctrl">
+              <option value="date_desc">Sort: Newest</option>
+              <option value="date_asc">Sort: Oldest</option>
+              <option value="amount_desc">Sort: Amount High</option>
+              <option value="amount_asc">Sort: Amount Low</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="card p-4"><h3 class="title">Category Spend</h3><canvas id="category-chart" height="180"></canvas></div>
+          <div class="card p-4"><h3 class="title">Monthly Trend</h3><canvas id="trend-chart" height="180"></canvas></div>
+        </div>
+
+        <div class="card p-4">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+            <h2 class="title">Transactions</h2>
+            <div class="flex gap-2 items-center">
+              <label class="inline-flex items-center gap-2 text-sm"><input id="select-all" type="checkbox"> Select all</label>
+              <button id="bulk-delete" class="btn">Bulk delete</button>
+              <button id="bulk-tag" class="btn">Bulk add tag</button>
+            </div>
+          </div>
+          <div id="transaction-list" class="space-y-2" aria-live="polite"></div>
+          <div class="mt-3 flex justify-between items-center">
+            <button id="prev-page" class="btn">Previous</button>
+            <p id="page-info" class="text-sm text-slate-300">Page 1/1</p>
+            <button id="next-page" class="btn">Next</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="edit-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="edit-title">
+    <div class="modal-panel card p-4">
+      <h2 id="edit-title" class="title mb-2">Edit Transaction</h2>
+      <form id="edit-form" class="space-y-2">
+        <input id="edit-id" type="hidden">
+        <div class="grid grid-cols-2 gap-2">
+          <select id="edit-type" class="ctrl"><option value="expense">Expense</option><option value="income">Income</option></select>
+          <input id="edit-date" type="date" class="ctrl" required>
+        </div>
+        <input id="edit-description" class="ctrl" required>
+        <div class="grid grid-cols-2 gap-2">
+          <input id="edit-amount" type="number" min="0.01" step="0.01" class="ctrl" required>
+          <input id="edit-category" class="ctrl" required>
+        </div>
+        <input id="edit-tags" class="ctrl" placeholder="Tags comma separated">
+        <textarea id="edit-notes" rows="2" class="ctrl" placeholder="Notes"></textarea>
+        <div class="flex justify-end gap-2 pt-1">
+          <button id="cancel-edit" class="btn" type="button">Cancel</button>
+          <button class="btn-primary" type="submit">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="install-banner" class="floating hidden">
+    <p>Install app for offline experience.</p>
+    <div class="flex gap-2">
+      <button id="install-app" class="btn">Install</button>
+      <button id="dismiss-install" class="btn">Dismiss</button>
+    </div>
+  </div>
+
+  <div id="update-banner" class="floating hidden">
+    <p>New version available.</p>
+    <button id="update-app" class="btn">Update</button>
+  </div>
+
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <script src="script.js" defer></script>
 </body>
 </html>
